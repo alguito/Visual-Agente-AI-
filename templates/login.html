@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Visual Agent AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; background: #000; }
+        
+        .left-panel {
+            width: 50%;
+            background: linear-gradient(135deg, #0d1f33 0%, #0d2645 100%);
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 40px; position: relative; overflow: hidden;
+        }
+        .left-panel::before {
+            content: '';
+            position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(165, 146, 69, 0.05) 20px, rgba(165, 146, 69, 0.05) 40px);
+            transform: rotate(15deg);
+        }
+        .brand-box {
+            text-align: center; z-index: 2;
+            border: 2px solid #a59245; padding: 40px; border-radius: 20px;
+            background: rgba(13, 38, 69, 0.85); backdrop-filter: blur(8px);
+            box-shadow: 0 0 40px rgba(165, 146, 69, 0.2);
+        }
+        .brand-icon { font-size: 60px; margin-bottom: 10px; }
+        .brand-title { color: #01678f; font-size: 32px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; }
+        .brand-box img { max-width: 100%; height: auto; display: block; }
+        .brand-subtitle { color: #d4bf6a; font-size: 16px; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+        .brand-quote { margin-top: 30px; color: #b8ae96; font-style: italic; font-size: 14px; }
+
+        .right-panel {
+            width: 50%; background: #f7f3eb;
+            display: flex; flex-direction: column;
+            justify-content: flex-start; align-items: center;
+            padding: 60px 40px; overflow-y: auto;
+        }
+        .auth-container { width: 100%; max-width: 400px; }
+        
+        .form-header { margin-bottom: 25px; text-align: center; }
+        .form-header h2 { color: #333; font-size: 22px; margin-bottom: 6px; }
+        .form-header p { color: #666; font-size: 14px; }
+
+        .input-group { margin-bottom: 16px; position: relative; }
+        .input-group label { display: block; margin-bottom: 6px; color: #444; font-weight: 600; font-size: 13px; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px 40px 12px 12px; border: 2px solid #ddd; border-radius: 8px;
+            font-size: 14px; transition: all 0.3s; outline: none;
+        }
+        .input-group input:focus, .input-group select:focus { border-color: #a59245; box-shadow: 0 0 0 3px rgba(165, 146, 69, 0.15); }
+
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 40px; }
+        .toggle-password {
+            position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer;
+            color: #999; padding: 6px; line-height: 1; display: flex;
+        }
+        .toggle-password:hover { color: #333; }
+        .eye-slash { display: none; }
+        .eye-visible .eye-slash { display: block; }
+
+        .btn-primary {
+            width: 100%; padding: 14px; background: #a59245; color: #fff; border: none;
+            border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-primary:hover { background: #b8a35a; color: #fff; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(165, 146, 69, 0.3); }
+        .btn-secondary {
+            width: 100%; padding: 12px; background: #fff; color: #333; border: 2px solid #ddd;
+            border-radius: 8px; font-size: 13px; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-secondary:hover { border-color: #a59245; color: #000; }
+
+        .toggle-text { text-align: center; margin-top: 16px; color: #666; font-size: 13px; }
+        .toggle-link { color: #000; font-weight: bold; cursor: pointer; text-decoration: underline; }
+        .toggle-link:hover { color: #a59245; }
+
+        .error-msg { background: #ffebee; color: #c62828; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: none; text-align: center; border: 1px solid #ffcdd2; }
+        .success-msg { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: none; text-align: center; border: 1px solid #c8e6c9; }
+        .hidden { display: none; }
+        .mt-2 { margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="left-panel">
+        <div class="brand-box">
+            <img src="/imagenes/MARIA%20LOGO.png" alt="Visual Agent AI">
+            <div class="brand-subtitle">Monitoreo Inteligente</div>
+            <div class="brand-quote">"Deteccion visual automatizada para interfaces graficas de usuario"</div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="auth-container">
+
+            <!-- LOGIN -->
+            <div id="login-section">
+                <div class="form-header">
+                    <h2>BIENVENIDO</h2>
+                    <p>Ingresa tus datos para acceder</p>
+                </div>
+                <div id="login-error" class="error-msg"></div>
+                <form id="login-form">
+                    <div class="input-group">
+                        <label>Usuario</label>
+                        <input type="text" id="login-user" required placeholder="ej: admin">
+                    </div>
+                    <div class="input-group">
+                        <label>Contrasena</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="login-pass" required placeholder="Ingresa tu contrasena">
+                            <button type="button" class="toggle-password" onclick="togglePass('login-pass', this)" tabindex="-1">
+                                <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <line class="eye-slash" x1="4" y1="4" x2="20" y2="20" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar al Sistema</button>
+                </form>
+                <div class="toggle-text">
+                    <span class="toggle-link" onclick="showRecovery()">¿Olvidaste tu contrasena?</span>
+                </div>
+                <div class="toggle-text">
+                    ¿No tienes cuenta? <span class="toggle-link" onclick="toggleForms('register')">Registrate aqui</span>
+                </div>
+            </div>
+
+            <!-- REGISTRO -->
+            <div id="register-section" class="hidden">
+                <div class="form-header">
+                    <h2>Crear Cuenta Nueva</h2>
+                    <p>Registrate para usar el Agente Visual</p>
+                </div>
+                <div id="reg-error" class="error-msg"></div>
+                <div id="reg-success" class="success-msg"></div>
+                <form id="register-form">
+                    <div class="input-group">
+                        <label>Nuevo Usuario</label>
+                        <input type="text" id="reg-user" required placeholder="Elige un nombre de usuario">
+                    </div>
+                    <div class="input-group">
+                        <label>Contrasena</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="reg-pass" required placeholder="Min. 6 caracteres, 1 mayuscula, 1 numero">
+                            <button type="button" class="toggle-password" onclick="togglePass('reg-pass', this)" tabindex="-1">
+                                <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <line class="eye-slash" x1="4" y1="4" x2="20" y2="20" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Pregunta Secreta</label>
+                        <select id="reg-question" required>
+                            <option value="">Selecciona una pregunta...</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Respuesta</label>
+                        <input type="text" id="reg-answer" required placeholder="Tu respuesta (sin importar mayusculas)">
+                    </div>
+                    <button type="submit" class="btn-primary">Crear Cuenta</button>
+                </form>
+                <div class="toggle-text">
+                    ¿Ya tienes cuenta? <span class="toggle-link" onclick="toggleForms('login')">Inicia Sesion</span>
+                </div>
+            </div>
+
+            <!-- RECUPERAR CONTRASEÑA -->
+            <div id="recovery-section" class="hidden">
+                <div class="form-header">
+                    <h2>Recuperar Contrasena</h2>
+                    <p>Responde tu pregunta secreta para restablecer el acceso</p>
+                </div>
+                <div id="rec-error" class="error-msg"></div>
+                <div id="rec-success" class="success-msg"></div>
+
+                <!-- Paso 1: ingresar usuario -->
+                <div id="rec-step1">
+                    <div class="input-group">
+                        <label>Nombre de Usuario</label>
+                        <input type="text" id="rec-user" required placeholder="ej: admin">
+                    </div>
+                    <button class="btn-primary" onclick="checkRecoveryUser()">Verificar Usuario</button>
+                    <div class="toggle-text mt-2">
+                        <span class="toggle-link" onclick="toggleForms('login')">Volver al inicio de sesion</span>
+                    </div>
+                </div>
+
+                <!-- Paso 2: responder pregunta y nueva contraseña -->
+                <div id="rec-step2" class="hidden">
+                    <div id="rec-question-display" class="input-group">
+                        <label>Pregunta Secreta</label>
+                        <p style="background:#e8e8e8;padding:10px;border-radius:6px;font-size:14px;" id="rec-question-text"></p>
+                    </div>
+                    <div class="input-group">
+                        <label>Respuesta</label>
+                        <input type="text" id="rec-answer" required placeholder="Tu respuesta">
+                    </div>
+                    <div class="input-group">
+                        <label>Nueva Contrasena</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="rec-newpass" required placeholder="Min. 6 caracteres, 1 mayuscula, 1 numero">
+                            <button type="button" class="toggle-password" onclick="togglePass('rec-newpass', this)" tabindex="-1">
+                                <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <line class="eye-slash" x1="4" y1="4" x2="20" y2="20" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="submitRecovery()">Cambiar Contrasena</button>
+                    <div class="toggle-text mt-2">
+                        <span class="toggle-link" onclick="showRecovery()">Volver a empezar</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleForms(target) {
+            document.getElementById('login-section').classList.toggle('hidden', target !== 'login');
+            document.getElementById('register-section').classList.toggle('hidden', target !== 'register');
+            document.getElementById('recovery-section').classList.add('hidden');
+            document.querySelectorAll('.error-msg, .success-msg').forEach(el => el.style.display = 'none');
+        }
+
+        function showRecovery() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('recovery-section').classList.remove('hidden');
+            document.getElementById('rec-step1').classList.remove('hidden');
+            document.getElementById('rec-step2').classList.add('hidden');
+            document.getElementById('rec-user').value = '';
+            document.getElementById('rec-answer').value = '';
+            document.getElementById('rec-newpass').value = '';
+            document.querySelectorAll('#recovery-section .error-msg, #recovery-section .success-msg').forEach(el => el.style.display = 'none');
+        }
+
+        function togglePass(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.classList.add('eye-visible');
+            } else {
+                input.type = 'password';
+                btn.classList.remove('eye-visible');
+            }
+        }
+
+        // Cargar preguntas secretas
+        fetch('/api/secret_questions')
+            .then(r => r.json())
+            .then(data => {
+                const sel = document.getElementById('reg-question');
+                data.questions.forEach(q => {
+                    const opt = document.createElement('option');
+                    opt.value = q;
+                    opt.textContent = q;
+                    sel.appendChild(opt);
+                });
+            });
+
+        // LOGIN
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            const errorDiv = document.getElementById('login-error');
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error de conexion';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // REGISTRO
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('reg-user').value;
+            const pass = document.getElementById('reg-pass').value;
+            const question = document.getElementById('reg-question').value;
+            const answer = document.getElementById('reg-answer').value;
+            const errorDiv = document.getElementById('reg-error');
+            const successDiv = document.getElementById('reg-success');
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username: user, password: pass, secret_question: question, secret_answer: answer })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    successDiv.textContent = data.message;
+                    successDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                    document.getElementById('reg-user').value = '';
+                    document.getElementById('reg-pass').value = '';
+                    document.getElementById('reg-answer').value = '';
+                    document.getElementById('reg-question').value = '';
+                    setTimeout(() => toggleForms('login'), 1500);
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error al registrar';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // RECUPERACION: verificar usuario
+        async function checkRecoveryUser() {
+            const username = document.getElementById('rec-user').value.trim();
+            const errorDiv = document.getElementById('rec-error');
+            const successDiv = document.getElementById('rec-success');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            if (!username) {
+                errorDiv.textContent = 'Ingresa tu nombre de usuario';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/get_secret_question', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('rec-question-text').textContent = data.question;
+                    document.getElementById('rec-step1').classList.add('hidden');
+                    document.getElementById('rec-step2').classList.remove('hidden');
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error de conexion';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // RECUPERACION: cambiar contrasena
+        async function submitRecovery() {
+            const username = document.getElementById('rec-user').value.trim();
+            const answer = document.getElementById('rec-answer').value.trim();
+            const newpass = document.getElementById('rec-newpass').value;
+            const errorDiv = document.getElementById('rec-error');
+            const successDiv = document.getElementById('rec-success');
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            if (!answer || !newpass) {
+                errorDiv.textContent = 'Completa todos los campos';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/recover_password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, answer, new_password: newpass })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    successDiv.textContent = data.message;
+                    successDiv.style.display = 'block';
+                    errorDiv.style.display = 'none';
+                    setTimeout(() => toggleForms('login'), 2000);
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                    successDiv.style.display = 'none';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Error de conexion';
+                errorDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
