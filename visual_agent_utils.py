@@ -90,7 +90,11 @@ class VisualAgentUtils:
             chrome_options.set_capability('goog:loggingPrefs', {'browser': 'ALL'})
             chrome_options.set_capability('pageLoadStrategy', 'eager')
 
-            service = Service(ChromeDriverManager().install())
+            if os.path.exists('/usr/bin/chromedriver'):
+                chrome_options.binary_location = '/usr/bin/chromium'
+                service = Service('/usr/bin/chromedriver')
+            else:
+                service = Service(ChromeDriverManager().install())
             self._driver = webdriver.Chrome(service=service, options=chrome_options)
             self._driver.set_page_load_timeout(15)
 
